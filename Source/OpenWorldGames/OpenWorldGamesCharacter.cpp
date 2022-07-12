@@ -7,6 +7,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Public/AnimBPInterface.h"
+
+
 
 //////////////////////////////////////////////////////////////////////////
 // AOpenWorldGamesCharacter
@@ -61,6 +64,9 @@ void AOpenWorldGamesCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jumpx", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jumpx", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("ToggleCrouch", IE_Pressed, this, &AOpenWorldGamesCharacter::CrouchButtonPressed);
+
+
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AOpenWorldGamesCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &AOpenWorldGamesCharacter::MoveRight);
 
@@ -85,6 +91,20 @@ void AOpenWorldGamesCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVect
 void AOpenWorldGamesCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	StopJumping();
+}
+
+void AOpenWorldGamesCharacter::CrouchButtonPressed() {
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	IAnimBPInterface* AnimBPInterface = Cast<IAnimBPInterface>(AnimInstance);
+	if (AnimBPInterface) {
+		AnimBPInterface->UeLog_PrintOutputLog_Implementation();
+	}
+
+
+	
+
 }
 
 void AOpenWorldGamesCharacter::TurnAtRate(float Rate)

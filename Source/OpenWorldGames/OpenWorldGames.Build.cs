@@ -8,6 +8,16 @@ public class OpenWorldGames : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay","UMG" });
+
+		PublicIncludePaths.AddRange(new string[] {
+		"OpenWorldGames/Public/Character"
+		,"OpenWorldGames/Public/Animation"
+		,"OpenWorldGames/Public/Weapons"
+		,"OpenWorldGames/Public/Interfaces"
+		});
+
+
+
 	}
 }

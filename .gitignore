@@ -12,3 +12,7 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
+Content/ParagonLtBelica/*
+Content/ParagonShinbi/*
+Content/ParagonTwinBlast/*
+Content/MetaHumans/*
