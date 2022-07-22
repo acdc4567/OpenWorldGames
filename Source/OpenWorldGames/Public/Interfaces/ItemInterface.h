@@ -29,4 +29,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 		void SetCollisionsToIgnore();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+		void SetCustomDepthx1(bool bEnable);
+
+
 };

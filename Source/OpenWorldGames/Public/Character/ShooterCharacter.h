@@ -5,8 +5,24 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/ShooterCharacterInterface.h"
-
+#include "OpenWorldGames/Public/AmmoTypes.h"
 #include "ShooterCharacter.generated.h"
+
+
+
+
+
+UENUM(BlueprintType)
+enum class ECombatState :uint8 {
+
+	ECS_UnOccupied UMETA(DisplayName = "UnOccupied")
+	, ECS_FireTimerInProgress UMETA(DisplayName = "FireTimerInProgress")
+	, ECS_Reloading UMETA(DisplayName = "Reloading")
+
+	, ECS_MAX UMETA(DisplayName = "DefaultMAX")
+
+};
+
 
 UCLASS()
 class OPENWORLDGAMES_API AShooterCharacter : public ACharacter,public IShooterCharacterInterface
@@ -35,7 +51,7 @@ protected:
 
 	void FireWeapon();
 
-	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation,FVector& OutBeamLocation);
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation,FHitResult& OutHitResult);
 
 	void AimingButtonPressed();
 	void AimingButtonReleased();
@@ -71,6 +87,44 @@ protected:
 	void SelectButtonPressed();
 
 	void SwapWeapon(AWeapon* WeaponToSwap);
+
+	void InitializeAmmoMap();
+
+	bool WeaponHasAmmo();
+
+	void PlayFireSound();
+	
+	void SendBullet();
+
+	void PlayGunFireMontage();
+
+	void ReloadButtonPressed();
+
+	void ReloadWeapon();
+
+	UFUNCTION(BlueprintCallable)
+		void FinishReloading();
+
+	bool CarryingAmmo();
+
+	UFUNCTION(BlueprintCallable)
+		void GrabClip();
+
+	UFUNCTION(BlueprintCallable)
+		void ReleaseClip();
+
+	void Aim();
+
+	void StopAiming();
+
+	void PickupAmmo(class AAmmo* Ammo);
+
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+		void FinishDeath();
+
+
 
 
 
@@ -116,6 +170,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* HipFireMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* DeathMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		UParticleSystem* ImpactParticles;
@@ -186,6 +246,43 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		float CameraInterpElevation = 65.f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		TMap<EAmmoType, int32> AmmoMap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		int32 Starting9mmAmmo= 330;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		int32 StartingARAmmo = 230;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		ECombatState CombatState=ECombatState::ECS_UnOccupied;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		FTransform ClipTransform;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		USceneComponent* HandSceneComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float BaseMovementSpeed = 600.f;
+
+	bool bAimingButtonPressed = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		TArray<AItem*> Inventory;
+
+	const int32 INVENTORY_CAPACITY{ 6 };
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float Health = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float MaxHealth = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		class USoundCue* MeleeImpactSound;
+
 
 
 public:
@@ -210,6 +307,13 @@ public:
 	void GetPickupItem(AItem* Item);
 
 	virtual void GetsPickupItem_Implementation( AItem* Item) override;
+
+	FORCEINLINE USoundCue* GetMeleeSound() const { return MeleeImpactSound; }
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+
 
 
 };

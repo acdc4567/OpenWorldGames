@@ -37,12 +37,42 @@ void AWeapon::ThrowWeapon() {
 	bFalling = 1;
 	GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
 
+	EnableGlowMaterial();
+
+
+}
+
+void AWeapon::DecrementAmmo() {
+	if (Ammo - 1 <= 0) {
+		Ammo = 0;
+	}
+	else {
+		--Ammo;
+	}
+
+
+
+}
+
+void AWeapon::ReloadAmmo(int32 Amount) {
+	checkf(Ammo + Amount <= MagazineCapacity, TEXT("Error"));
+	Ammo += Amount;
+
+
+}
+
+bool AWeapon::ClipIsFull() {
+
+	return Ammo >= MagazineCapacity;
+	
 }
 
 void AWeapon::StopFalling() {
 
 	bFalling = 0;
 	SetItemState(EItemState::EIS_Pickup);
+
+	StartPulseTimer();
 
 
 
